@@ -9,7 +9,8 @@
 class Function {
 private:
     double *a, *b, *c, *half, *last, *result;
-    __m128d mmx0, mmx1, mmx2, mmx3;
+    double *tmp_for_exp, *tmp_for_cos;
+    __m128d mmx0, mmx1, mmx2, mmx3, mmx4, mmx5, mmx6;
 
 public:
     Function() {
@@ -17,12 +18,15 @@ public:
         a = new_aligned_two_doubles();
         a[0] = -20;
         a[1] = -20;
+        mmx4 = _mm_load_pd(a);
         b = new_aligned_two_doubles();
         b[0] = -0.14142135623730953;
         b[1] = -0.14142135623730953;
+        mmx5 = _mm_load_pd(b);
         c = new_aligned_two_doubles();
         c[0] = 2 * M_PI;
         c[1] = 2 * M_PI;
+        mmx6 = _mm_load_pd(c);
         half = new_aligned_two_doubles();
         half[0] = 0.5;
         half[1] = 0.5;
@@ -30,6 +34,8 @@ public:
         last[0] = 22.718281828459045;
         last[1] = 22.718281828459045;
         result = new_aligned_two_doubles();
+        tmp_for_exp = new_aligned_two_doubles();
+        tmp_for_cos = new_aligned_two_doubles();
     }
 
     ~Function() {
@@ -39,6 +45,8 @@ public:
         delete half;
         delete last;
         delete result;
+        delete tmp_for_cos;
+        delete tmp_for_exp;
     }
 
 
@@ -52,21 +60,18 @@ public:
         mmx3 = _mm_mul_pd(mmx1, mmx1);      // y * y
         mmx2 = _mm_add_pd(mmx2, mmx3);      // x * x + y * y
         mmx2 = _mm_sqrt_pd(mmx2);           // sqrt(x * x + y * y)
-        mmx3 = _mm_load_pd(b);              // b * sqrt(0.5)
-        mmx3 = _mm_mul_pd(mmx3, mmx2);      // b * sqrt(0.5) * sqrt(x * x + y * y)
-        exp_pd(mmx3);                       // exp(b * sqrt(0.5) * sqrt(x * x + y * y))
-        mmx2 = _mm_load_pd(a);              // a
-        mmx3 = _mm_mul_pd(mmx3, mmx2);      // a * exp(b * sqrt(0.5) * sqrt(x * x + y * y))
-        mmx2 = _mm_load_pd(c);              // c
-        mmx0 = _mm_mul_pd(mmx0, mmx2);      // c * x
-        mmx1 = _mm_mul_pd(mmx1, mmx2);      // c * y
-        cos_pd(mmx0);                       // cos(c * x)
-        cos_pd(mmx1);                       // cos(c * y)
+        mmx3 = _mm_mul_pd(mmx5, mmx2);      // b * sqrt(0.5) * sqrt(x * x + y * y)
+        mmx2 = _mm_load_pd(half);           // 0.5
+        exp_pd(mmx3);                    // exp(b * sqrt(0.5) * sqrt(x * x + y * y))
+        mmx3 = _mm_mul_pd(mmx3, mmx4);      // a * exp(b * sqrt(0.5) * sqrt(x * x + y * y))
+        mmx0 = _mm_mul_pd(mmx0, mmx6);      // c * x
+        mmx1 = _mm_mul_pd(mmx1, mmx6);      // c * y
+        cos_pd(mmx0);                    // cos(c * x)
+        cos_pd(mmx1);                    // cos(c * y)
         mmx0 = _mm_add_pd(mmx0, mmx1);      // cos(c * x) + cos(c * y)
-        mmx1 = _mm_load_pd(half);           // 0.5
-        mmx0 = _mm_mul_pd(mmx0, mmx1);      // 0.5 * (cos(c * x) + cos(c * y))
-        exp_pd(mmx0);                       // exp(0.5 * (cos(c * x) + cos(c * y)))
         mmx1 = _mm_load_pd(last);           // -a + exp(1)
+        mmx0 = _mm_mul_pd(mmx0, mmx2);      // 0.5 * (cos(c * x) + cos(c * y))
+        exp_pd(mmx0);                    // exp(0.5 * (cos(c * x) + cos(c * y)))
         mmx3 = _mm_sub_pd(mmx3,
                           mmx0);            // a * exp(b * sqrt(0.5 * (x * x + y * y))) - exp(0.5 * (cos(c * x) + cos(c * y)))
         mmx3 = _mm_add_pd(mmx3,
@@ -76,12 +81,11 @@ public:
     }
 
 
-    static inline void exp_pd(__m128d &value) {
+    inline void exp_pd(__m128d &value) {
 #ifdef WITH_ICPC_INTRINSICS
         value = _mm_exp_pd(value);
 #else
         // Я не придумав, як це зробити оптимальніше.
-        double tmp_for_exp[2];
         _mm_store_pd(tmp_for_exp, value);
         tmp_for_exp[0] = exp(tmp_for_exp[0]);
         tmp_for_exp[1] = exp(tmp_for_exp[1]);
@@ -89,12 +93,11 @@ public:
 #endif
     }
 
-    static inline void cos_pd(__m128d &value) {
+    inline void cos_pd(__m128d &value) {
 #ifdef WITH_ICPC_INTRINSICS
         value = _mm_cos_pd(value);
 #else
         // Я не придумав, як це зробити оптимальніше.
-        double tmp_for_cos[2];
         _mm_store_pd(tmp_for_cos, value);
         tmp_for_cos[0] = cos(tmp_for_cos[0]);
         tmp_for_cos[1] = cos(tmp_for_cos[1]);

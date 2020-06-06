@@ -23,7 +23,6 @@ int main(int argc, char* argv[]) {
     TimeCounter timeCounter;
 
     timeCounter.startCount();
-    std::cout << "Starting counting...." << std::endl;
 
     int intervals = 1000;
     double newRes = calculator.calculate(intervals, numOfThreads);
@@ -37,7 +36,7 @@ int main(int argc, char* argv[]) {
         iteration++;
     } while ((std::abs(res - newRes) > conf["abs_error"] ||
               std::abs(newRes - res) / newRes > conf["rel_error"]) &&
-             iteration <= 15);
+             iteration < 5);
 
     double timeElapsed = timeCounter.timeElapsed();
     std::cout << std::fixed << timeElapsed << " " << newRes << " " << std::abs(res - newRes) << " " << std::abs(newRes - res) / newRes;

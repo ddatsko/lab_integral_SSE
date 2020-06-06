@@ -7,14 +7,14 @@
 # You may not change the order of the fields or remove them  !!!!
 
 # Number of threads to use (int) 1 <= threads <= 100
-num_of_threads=1
+num_of_threads=8
 
 # Absolute error (double)
 # Absolute error (double)
-abs_error=0.000001
+abs_error=0.006
 
 # Relative error (double in percent) 0.00 - 1.00
-rel_error=0.00000000001026
+rel_error=0.000001026
 
 
 # Starting point of x coordinate (double)

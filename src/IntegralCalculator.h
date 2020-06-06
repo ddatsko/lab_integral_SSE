@@ -15,11 +15,10 @@ public:
                                int numOfIntervalsX, int numOfIntervalsY);
     void calculateEveryThread(double xFirst, double xLast, double yFirst, double yLast,
                               int numOfIntervalsX, int numOfIntervalsY, std::vector<double> &res);
-    ~IntegralCalculator();
+
 
 private:
     double xStart, xEnd, yStart, yEnd;
-    Function* function;
 
     double calculateOneThread(int numOfIntervals);
 

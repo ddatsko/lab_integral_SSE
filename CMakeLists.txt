@@ -3,9 +3,9 @@ project(lab_integrl_sse)
 
 set(CMAKE_CXX_STANDARD 20)
 
+FIND_PROGRAM(ICPC icpc)
 
-# TODO: change the path
-FIND_PROGRAM(ICPC /home/kumquat/intel/bin/icdsdsdpc)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
 if (ICPC)                                                        # If Intel c++ compiler was found
     message(STATUS "ICPC found")
