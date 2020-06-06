@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
         return -2;
     }
 
+
     std::map<std::string, double> conf;
     int numOfThreads = 0;
     if (readConfig(conf, numOfThreads, argv[1]) != 0)

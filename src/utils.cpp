@@ -3,6 +3,7 @@
 #include <map>
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 
 int readConfig(std::map<std::string, double> &conf, int &num_of_threads, char* filename) {
@@ -34,4 +35,13 @@ int readConfig(std::map<std::string, double> &conf, int &num_of_threads, char* f
         return -2;
     }
     return 0;
+}
+
+double *new_aligned_two_doubles() {
+    void* p = operator new(256);
+    unsigned long space = sizeof(double) * 4;
+    if (std::align(16, sizeof(double) * 2, p, space)) {
+        return reinterpret_cast<double *>(p);
+    }
+    return nullptr;
 }

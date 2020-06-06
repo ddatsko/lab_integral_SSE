@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 
 # TODO: change the path
-FIND_PROGRAM(ICPC /home/kumquat/intel/bin/icdfdfpc)
+FIND_PROGRAM(ICPC /home/kumquat/intel/bin/icdsdsdpc)
 
 if (ICPC)                                                        # If Intel c++ compiler was found
     message(STATUS "ICPC found")

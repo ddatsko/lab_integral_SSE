@@ -26,7 +26,7 @@ double IntegralCalculator::calculateOnInterval(double xFirst, double xLast, doub
                                                int numOfIntervalsX, int numOfIntervalsY) {
     double xStep = (xLast - xFirst) / numOfIntervalsX;
     double yStep = (yLast - yFirst) / numOfIntervalsY;
-    double xs[2], ys[2];
+    auto xs = new_aligned_two_doubles(), ys = new_aligned_two_doubles();
 
     double res = 0, x = xFirst, y;
     for (int i = 0; i < numOfIntervalsX; i++) {
@@ -42,28 +42,28 @@ double IntegralCalculator::calculateOnInterval(double xFirst, double xLast, doub
         x += xStep;
     }
     double area = xStep * yStep;
+    std::cout << res * area << std::endl;
+    delete xs;
+    delete ys;
     return res * area;
 }
 
-double foo(double bar) {
-    return bar;
-}
 
 double IntegralCalculator::calculate_multiple_threads(int numOfIntervals, int numOfThreads) {
     std::vector<std::thread> threads;
     std::vector<double> resVector;
     resVector.reserve(numOfThreads);
     double result = 0, step = (yEnd - yStart) / numOfThreads, y = yStart;
-    for(int i = 0; i < numOfThreads; i++){
-        threads.emplace_back(&IntegralCalculator::calculateEveryThread, this, xStart, xEnd, y, y+step, numOfIntervals,
+    for (int i = 0; i < numOfThreads; i++) {
+        threads.emplace_back(&IntegralCalculator::calculateEveryThread, this, xStart, xEnd, y, y + step, numOfIntervals,
                              numOfIntervals / numOfThreads, std::ref(resVector));
         y += step;
     }
 
-    for(auto &th : threads){
+    for (auto &th : threads) {
         th.join();
     }
-    for(auto &localRes : resVector) result += localRes;
+    for (auto &localRes : resVector) result += localRes;
     return result;
 }
 
